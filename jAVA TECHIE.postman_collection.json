@@ -1,0 +1,501 @@
+{
+	"info": {
+		"_postman_id": "d544eeeb-96fb-4da9-b6e7-6e0efca36a58",
+		"name": "jAVA TECHIE",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "26457889"
+	},
+	"item": [
+		{
+			"name": "Microservice JWT",
+			"item": [
+				{
+					"name": "Identity Service",
+					"item": [
+						{
+							"name": "Create User",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n\r\n    \"username\":\"siam\",\r\n    \"password\":\"password\",\r\n    \"email\":\"siam.cse@yahoo.com\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:9898/auth/signup",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "9898",
+									"path": [
+										"auth",
+										"signup"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Generate Token",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"username\":\"bulbul\",\r\n    \"password\":\"pass\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:9898/auth/signin",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "9898",
+									"path": [
+										"auth",
+										"signin"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get User",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJidWxidWwiLCJpYXQiOjE2Nzk0NzcxMDEsImV4cCI6MTY4MTI3NzEwMX0.0_nylDhG61dgCLLAVAiwRAgCk8t-oUI3HhuN0jKBuIc",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/auth/user/1",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"auth",
+										"user",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Check User Validity",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJidWxidWwiLCJpYXQiOjE2Nzk0NjE2MzIsImV4cCI6MTY3OTU0ODAzMn0.a6YSd8zeIYAlTg89vyhdU_XDaE5q54l-DwpuIuheP7jXeagv07t8Rl-uHOfpkjHh-ZeP28Ur3NUwmmyFoGfc5w",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/auth/user/validate/1",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"auth",
+										"user",
+										"validate",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Deduct Balance",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJidWxidWwiLCJpYXQiOjE2Nzk0NjE2MzIsImV4cCI6MTY3OTU0ODAzMn0.a6YSd8zeIYAlTg89vyhdU_XDaE5q54l-DwpuIuheP7jXeagv07t8Rl-uHOfpkjHh-ZeP28Ur3NUwmmyFoGfc5w",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/auth/user/deductBal/1?amount=200",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"auth",
+										"user",
+										"deductBal",
+										"1"
+									],
+									"query": [
+										{
+											"key": "amount",
+											"value": "200"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Restrant Service",
+					"item": [
+						{
+							"name": "Order Status",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzYWtpYiIsImlhdCI6MTY3OTIwOTA1MywiZXhwIjoxNjc5MjEwODUzfQ.CYBT5qoMNtvD53_SIQYXVp29M--Xs0R0trahXIemGRI",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/restaurant/orders/status/37jbd832",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"restaurant",
+										"orders",
+										"status",
+										"37jbd832"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Swiggy App",
+					"item": [
+						{
+							"name": "Order Status Copy",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ98.eyJzdWIiOiJTYWtpYiIsImlhdCI6MTY3OTIyMTI4NSwiZXhwIjoxNjc5MjIzMDg1fQ.CUQFn8ixGCd39l3ockyctHwnTRj3pr1Lkidxc9KSy0Y",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/swiggy/37jbd8320",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"swiggy",
+										"37jbd8320"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Product Service",
+					"item": [
+						{
+							"name": "Create Product",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzdXBlcmFkbWluIiwiaWF0IjoxNjc5MjkwMTQxLCJleHAiOjE2NzkzNzY1NDF9.Tk_l0_1zeGrv5A-J8rJ0jqoTdKIfcTB3bY4IheNLzREeJyo5WH6pjSHzAGD-v934dzPVCWZt7wrnuP1eaZO0Zw",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"test_13a7e844e207\",\r\n  \"price\": 98,\r\n  \"quantity\": 100\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "localhost:8080/product",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"product"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Product",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJidWxidWwiLCJpYXQiOjE2NzkzMDc3ODYsImV4cCI6MTY3OTMwOTU4Nn0.EAc40ZO5a1iuiqfIGvR36xag9MBSm0qaSwGHQ1p8anY",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "localhost:8080/product/1",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"product",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Reduce Quantity",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJidWxidWwiLCJpYXQiOjE2NzkzMDQ1OTEsImV4cCI6MTY3OTMwNjM5MX0.MQyiBeknrlNhzKqbd1iw-kx4N9CtvFzoS59MZzoVKow",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"url": {
+									"raw": "localhost:8080/product/reduceQuantity/1?quantity=1",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"product",
+										"reduceQuantity",
+										"1"
+									],
+									"query": [
+										{
+											"key": "quantity",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Payment Service",
+					"item": [
+						{
+							"name": "Do Payment",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJidWxidWwiLCJpYXQiOjE2NzkzMDc3ODYsImV4cCI6MTY3OTMwOTU4Nn0.EAc40ZO5a1iuiqfIGvR36xag9MBSm0qaSwGHQ1p8anY",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"orderId\": 1,\r\n  \"amount\": 14,\r\n  \"userId\": 72,\r\n  \"referenceNumber\": \"test_832b05dcf54c\",\r\n  \"paymentMode\": \"PAYPAL\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "localhost:8080/payment",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"payment"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Order Details",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJidWxidWwiLCJpYXQiOjE2NzkzMDc3ODYsImV4cCI6MTY3OTMwOTU4Nn0.EAc40ZO5a1iuiqfIGvR36xag9MBSm0qaSwGHQ1p8anY",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "localhost:8080/payment/order/1",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"payment",
+										"order",
+										"1"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Order Service",
+					"item": [
+						{
+							"name": "Placed Order",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJidWxidWwiLCJpYXQiOjE2Nzk0ODYyMjcsImV4cCI6MTY4MTI4NjIyN30.b6ikUnnWcFYVhC6tyQAQGdsSMTmoLXFZoSK6wVgw5-o",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"productId\": 1,\r\n  \"userId\": 1,\r\n  \"totalAmount\": 2,\r\n  \"quantity\":4,\r\n  \"email\":\"bulbul.usbangla@gmail.com\",\r\n  \"paymentMode\": \"APPLE_PAY\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "localhost:8080/order",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"order"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Order Details",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJidWxidWwiLCJpYXQiOjE2NzkzNjc5NjUsImV4cCI6MTY4MTE2Nzk2NX0.It-5_I5kgr9ITYxsHFomzTAztfglO78rg7PDTrik8oM",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "localhost:8080/order/5",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"order",
+										"5"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		}
+	]
+}
