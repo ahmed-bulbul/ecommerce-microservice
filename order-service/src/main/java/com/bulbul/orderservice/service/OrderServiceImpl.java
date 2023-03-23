@@ -4,6 +4,7 @@ package com.bulbul.orderservice.service;
 import com.bulbul.commonservice.event.OrderEvent;
 import com.bulbul.orderservice.entity.Order;
 import com.bulbul.orderservice.exception.CustomException;
+import com.bulbul.orderservice.external.client.AccountService;
 import com.bulbul.orderservice.external.client.AuthService;
 import com.bulbul.orderservice.external.client.PaymentService;
 import com.bulbul.orderservice.external.client.ProductService;
@@ -35,17 +36,19 @@ public class OrderServiceImpl  implements OrderService{
 
     private final OrderProducer orderProducer;
 
-    private final AuthService authService;
+
+    private final AccountService accountService;
 
 
     @Autowired
-    public OrderServiceImpl(OrderRepository orderRepository, ProductService productService, PaymentService paymentService, RestTemplate restTemplate, OrderProducer orderProducer, AuthService authService) {
+    public OrderServiceImpl(OrderRepository orderRepository, ProductService productService, PaymentService paymentService,
+                            RestTemplate restTemplate, OrderProducer orderProducer, AccountService accountService) {
         this.orderRepository = orderRepository;
         this.productService = productService;
         this.paymentService = paymentService;
         this.restTemplate = restTemplate;
         this.orderProducer = orderProducer;
-        this.authService = authService;
+        this.accountService = accountService;
     }
 
     @Override
@@ -86,12 +89,18 @@ public class OrderServiceImpl  implements OrderService{
             log.error("Error occurred in payment.Changing the order status to PAYMENT_FAILED");
             orderStatus="PAYMENT_FAILED";
         }
+
+        log.info("Invoking Account Service to Deduct User Balance");
+
+        accountService.deductUserBalance(orderRequest.getUserId(),orderRequest.getTotalAmount());
+
+
+
         order.setOrderStatus(orderStatus);
         orderRepository.save(order);
         log.info("Order places successfully with orderId: {}", order.getId());
 
-        log.info("Deducting user balance");
-        authService.deductUserBalance(orderRequest.getUserId(),orderRequest.getTotalAmount());
+
 
 
         //send to kafka
@@ -99,9 +108,10 @@ public class OrderServiceImpl  implements OrderService{
         orderEvent.setStatus("PENDING");
         orderEvent.setMessage("Order status is in pending state");
         orderEvent.setOrderStatus(order.getOrderStatus());
+        orderEvent.setOrderId(order.getId());
         orderEvent.setEmail(orderRequest.getEmail());
 
-        //orderProducer.sendMessage(orderEvent);
+        orderProducer.sendMessage(orderEvent);
 
         return order.getId();
     }

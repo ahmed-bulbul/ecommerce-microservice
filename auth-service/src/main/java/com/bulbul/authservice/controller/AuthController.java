@@ -38,10 +38,7 @@ public class AuthController {
     }
 
 
-    @PutMapping("/user/deductBal/{id}")
-    public String deductUserBalance(@PathVariable Long id,@RequestParam double amount){
-        return service.deductUserBalance(id,amount);
-    }
+
 
     @PostMapping("/register")
     public String addNewUser(@RequestBody User user) {

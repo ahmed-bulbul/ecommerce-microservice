@@ -46,6 +46,17 @@ spring:
                 name: ORDER-SERVICE
                 fallbackuri: forward:/orderServiceFallBack
 
+        - id: account-service
+          uri: lb://ACCOUNT-SERVICE
+          predicates:
+            - Path=/account/**
+          filters:
+            - AuthenticationFilter
+            - name: CircuitBreaker
+              args:
+                name: ACCOUNT-SERVICE
+                fallbackuri: forward:/accountServiceFallBack
+
   application:
     name: GATEWAY-SERVICE
 

@@ -22,9 +22,6 @@ public class User {
     private String username;
     private String email;
     private String password;
-
-    private Double balance;
-
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(  name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),

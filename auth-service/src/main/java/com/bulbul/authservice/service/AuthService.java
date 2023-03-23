@@ -50,14 +50,6 @@ public class AuthService {
     }
 
 
-    public String deductUserBalance(Long id,Double amount) {
-        //validateUser(id);
-        User user = repository.findById(id).orElseThrow(()->
-                new CustomException("User not found","USER_NOT_FOUND"));
-        updateBalance(user,amount);
-        log.info("Amount deducted successfully");
-        return "Successfully deducted balance";
-    }
 
     private void validateUser(Long id) {
         User user = findById(id);
@@ -75,13 +67,7 @@ public class AuthService {
         return repository.findById(id).orElseThrow(()->new CustomException("User not found","NOT_FOUND"));
     }
 
-    private void updateBalance(User user, double amount) {
-        if(user.getBalance() < amount){
-            throw new CustomException("Insufficient Balance","INSUFFICIENT_BALANCE");
-        }
-        user.setBalance(user.getBalance()-amount);
-        repository.save(user);
-    }
+
 
 
     private UserResponse convertToResponseDto(User user) {
@@ -89,7 +75,6 @@ public class AuthService {
                 .id(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
-                .balance(user.getBalance())
                 .build();
     }
 
