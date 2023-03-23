@@ -15,6 +15,8 @@ import com.bulbul.orderservice.model.OrderRequest;
 import com.bulbul.orderservice.model.OrderResponse;
 import com.bulbul.orderservice.external.response.ProductResponse;
 import com.bulbul.orderservice.respository.OrderRepository;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,7 +38,6 @@ public class OrderServiceImpl  implements OrderService{
 
     private final OrderProducer orderProducer;
 
-
     private final AccountService accountService;
 
 
@@ -50,6 +51,7 @@ public class OrderServiceImpl  implements OrderService{
         this.orderProducer = orderProducer;
         this.accountService = accountService;
     }
+
 
     @Override
     public long placeOrder(OrderRequest orderRequest) {
@@ -99,8 +101,6 @@ public class OrderServiceImpl  implements OrderService{
         order.setOrderStatus(orderStatus);
         orderRepository.save(order);
         log.info("Order places successfully with orderId: {}", order.getId());
-
-
 
 
         //send to kafka

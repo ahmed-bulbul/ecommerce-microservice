@@ -1,0 +1,31 @@
+
+spring:
+  application:
+    name: ORDER-SERVICE
+
+#eureka:
+#  client:
+#    service-url:
+#      defaultZone : http://localhost:8761/eureka/
+#
+#
+#server:
+#  port: 9696
+#resilience4j:
+#  circuitbreaker:
+#    instances:
+#      external:
+#        event-consumer-buffer-size: 10
+#        failure-rate-threshold: 50
+#        minimum-number-of-calls: 5
+#        automatic-transition-from-open-to-half-open-enabled: true
+#        wait-duration-in-open-state: 5s
+#        permitted-number-of-calls-in-half-open-state: 3
+#        sliding-window-size: 10
+#        sliding-window-type: COUNT_BASED
+
+
+
+microservice:
+  product: http://localhost:8080/product/
+  payment: http://localhost:8080/payment/
