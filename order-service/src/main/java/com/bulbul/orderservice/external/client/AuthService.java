@@ -21,6 +21,9 @@ public interface AuthService {
     @GetMapping("/user/{id}")
     UserResponse getUser(@PathVariable Long id);
 
+    @GetMapping("/getLoggedInUserId")
+    Long getLoggedInUserId();
+
     default ResponseEntity<Long> fallback(Exception e) {
         throw new CustomException("Auth Service is not available",
                 "UNAVAILABLE",

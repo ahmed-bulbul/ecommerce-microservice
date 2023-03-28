@@ -15,8 +15,6 @@ import com.bulbul.orderservice.model.OrderRequest;
 import com.bulbul.orderservice.model.OrderResponse;
 import com.bulbul.orderservice.external.response.ProductResponse;
 import com.bulbul.orderservice.respository.OrderRepository;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,16 +38,19 @@ public class OrderServiceImpl  implements OrderService{
 
     private final AccountService accountService;
 
+    private final AuthService authService;
+
 
     @Autowired
     public OrderServiceImpl(OrderRepository orderRepository, ProductService productService, PaymentService paymentService,
-                            RestTemplate restTemplate, OrderProducer orderProducer, AccountService accountService) {
+                            RestTemplate restTemplate, OrderProducer orderProducer, AccountService accountService, AuthService authService) {
         this.orderRepository = orderRepository;
         this.productService = productService;
         this.paymentService = paymentService;
         this.restTemplate = restTemplate;
         this.orderProducer = orderProducer;
         this.accountService = accountService;
+        this.authService = authService;
     }
 
 
@@ -57,6 +58,9 @@ public class OrderServiceImpl  implements OrderService{
     public long placeOrder(OrderRequest orderRequest) {
 
         log.info("Placing Order request: {}", orderRequest);
+
+        log.info("Validating user with user Id: {}",orderRequest.getUserId());
+        validateUser(orderRequest.getUserId());
 
         productService.reduceQuantity(orderRequest.getProductId(), orderRequest.getQuantity());
 
@@ -111,9 +115,15 @@ public class OrderServiceImpl  implements OrderService{
         orderEvent.setOrderId(order.getId());
         orderEvent.setEmail(orderRequest.getEmail());
 
-        orderProducer.sendMessage(orderEvent);
+      //  orderProducer.sendMessage(orderEvent);
 
         return order.getId();
+    }
+
+    private void validateUser(long userId) {
+        Long loggedInUserId = authService.getLoggedInUserId();
+        if(userId!=loggedInUserId)
+            throw new CustomException("User is not loggedIn or invalid user","INVALID_USER",403);
     }
 
     @Override

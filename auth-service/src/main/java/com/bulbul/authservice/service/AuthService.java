@@ -1,5 +1,6 @@
 package com.bulbul.authservice.service;
 
+import com.bulbul.authservice.config.UserDetailsImpl;
 import com.bulbul.authservice.dto.UserResponse;
 import com.bulbul.authservice.entity.User;
 import com.bulbul.authservice.exception.CustomException;
@@ -39,9 +40,9 @@ public class AuthService {
         return jwtService.generateToken(username);
     }
 
-    public void validateToken(String token) {
-        jwtService.validateToken(token);
-    }
+//    public void validateToken(String token) {
+//        jwtService.validateToken(token);
+//    }
 
 
     public UserResponse getUser(Long id) {
@@ -78,12 +79,20 @@ public class AuthService {
                 .build();
     }
 
-    public static String getLoginUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (!(authentication instanceof AnonymousAuthenticationToken)) {
-            return authentication.getName();
-        } else {
-            return null;
+    public static Long getLoginUserId() {
+        Long userId = null;
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (Objects.isNull(auth)) return null;
+            userId = ((UserDetailsImpl) auth.getPrincipal()).getId();
+            System.out.println(userId);
+        } catch (Exception e) {
+            log.error("Auth data could not be extracted: {}", e.getMessage());
         }
+        return userId;
+    }
+
+    public boolean isValidUser(Long userId) {
+        return Objects.equals(userId, getLoginUserId());
     }
 }

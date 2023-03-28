@@ -7,6 +7,7 @@ import com.bulbul.authservice.dto.UserResponse;
 import com.bulbul.authservice.entity.User;
 import com.bulbul.authservice.exception.CustomException;
 import com.bulbul.authservice.service.AuthService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,10 +18,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/auth")
+@Slf4j
 public class AuthController {
 
     private final AuthService service;
@@ -58,6 +61,7 @@ public class AuthController {
                     .map(GrantedAuthority::getAuthority)
                     .collect(Collectors.toList());
 
+
             return ResponseEntity.ok(new JwtResponse(jwt,
                     userDetails.getId(),
                     userDetails.getUsername(),
@@ -70,7 +74,13 @@ public class AuthController {
 
     @GetMapping("/validate")
     public String validateToken(@RequestParam("token") String token) {
-        service.validateToken(token);
+       // service.validateToken(token);
         return "Token is valid";
+    }
+
+
+    @GetMapping("/isValidUser")
+    public boolean isValida(Long userId){
+        return service.isValidUser(userId);
     }
 }
