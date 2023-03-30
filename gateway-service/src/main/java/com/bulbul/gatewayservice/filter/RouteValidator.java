@@ -16,7 +16,8 @@ public class RouteValidator {
             "/orderServiceFallBack",
             "/productServiceFallBack",
             "/paymentServiceFallBack",
-            "/authServiceFallBack"
+            "/authServiceFallBack",
+            "/accountServiceFallBack"
     );
 
     public Predicate<ServerHttpRequest> isSecured =

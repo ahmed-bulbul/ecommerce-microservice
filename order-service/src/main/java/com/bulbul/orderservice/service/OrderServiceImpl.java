@@ -60,71 +60,68 @@ public class OrderServiceImpl  implements OrderService{
         log.info("Placing Order request: {}", orderRequest);
 
         log.info("Validating user with user Id: {}",orderRequest.getUserId());
-        validateUser(orderRequest.getUserId());
+        authService.isValidUser(orderRequest.getUserId());
 
-        productService.reduceQuantity(orderRequest.getProductId(), orderRequest.getQuantity());
+//        productService.reduceQuantity(orderRequest.getProductId(), orderRequest.getQuantity());
+//
+//        log.info("Creating Order with Status CREATED");
+//
+//        Order order = Order.builder()
+//                .productId(orderRequest.getProductId())
+//                .userId(orderRequest.getUserId())
+//                .amount(orderRequest.getTotalAmount())
+//                .quantity(orderRequest.getQuantity())
+//                .orderStatus("CREATED")
+//                .orderDate(Instant.now())
+//                .build();
+//
+//        order = orderRepository.save(order);
+//
+//        log.info("Calling Payment Service to complete the payment");
+//
+//        PaymentRequest paymentRequest
+//                =PaymentRequest.builder()
+//                .orderId(order.getId())
+//                .paymentMode(orderRequest.getPaymentMode())
+//                .amount(orderRequest.getTotalAmount())
+//                .build();
+//
+//        String orderStatus =null;
+//        try{
+//            paymentService.doPayment(paymentRequest);
+//            log.info("Payment done Successfully.Changing the order status to PLACED");
+//            orderStatus="PLACED";
+//        }catch (Exception e){
+//            log.error("Error occurred in payment.Changing the order status to PAYMENT_FAILED");
+//            orderStatus="PAYMENT_FAILED";
+//        }
+//
+//        log.info("Invoking Account Service to Deduct User Balance");
+//
+//        accountService.deductUserBalance(orderRequest.getUserId(),orderRequest.getTotalAmount());
+//
+//
+//
+//        order.setOrderStatus(orderStatus);
+//        orderRepository.save(order);
+//        log.info("Order places successfully with orderId: {}", order.getId());
+//
+//
+//        //send to kafka
+//        OrderEvent orderEvent = new OrderEvent();
+//        orderEvent.setStatus("PENDING");
+//        orderEvent.setMessage("Order status is in pending state");
+//        orderEvent.setOrderStatus(order.getOrderStatus());
+//        orderEvent.setOrderId(order.getId());
+//        orderEvent.setEmail(orderRequest.getEmail());
+//
+//      //  orderProducer.sendMessage(orderEvent);
 
-        log.info("Creating Order with Status CREATED");
+      //  return order.getId();
 
-        Order order = Order.builder()
-                .productId(orderRequest.getProductId())
-                .userId(orderRequest.getUserId())
-                .amount(orderRequest.getTotalAmount())
-                .quantity(orderRequest.getQuantity())
-                .orderStatus("CREATED")
-                .orderDate(Instant.now())
-                .build();
-
-        order = orderRepository.save(order);
-
-        log.info("Calling Payment Service to complete the payment");
-
-        PaymentRequest paymentRequest
-                =PaymentRequest.builder()
-                .orderId(order.getId())
-                .paymentMode(orderRequest.getPaymentMode())
-                .amount(orderRequest.getTotalAmount())
-                .build();
-
-        String orderStatus =null;
-        try{
-            paymentService.doPayment(paymentRequest);
-            log.info("Payment done Successfully.Changing the order status to PLACED");
-            orderStatus="PLACED";
-        }catch (Exception e){
-            log.error("Error occurred in payment.Changing the order status to PAYMENT_FAILED");
-            orderStatus="PAYMENT_FAILED";
-        }
-
-        log.info("Invoking Account Service to Deduct User Balance");
-
-        accountService.deductUserBalance(orderRequest.getUserId(),orderRequest.getTotalAmount());
-
-
-
-        order.setOrderStatus(orderStatus);
-        orderRepository.save(order);
-        log.info("Order places successfully with orderId: {}", order.getId());
-
-
-        //send to kafka
-        OrderEvent orderEvent = new OrderEvent();
-        orderEvent.setStatus("PENDING");
-        orderEvent.setMessage("Order status is in pending state");
-        orderEvent.setOrderStatus(order.getOrderStatus());
-        orderEvent.setOrderId(order.getId());
-        orderEvent.setEmail(orderRequest.getEmail());
-
-      //  orderProducer.sendMessage(orderEvent);
-
-        return order.getId();
+        return 0L;
     }
 
-    private void validateUser(long userId) {
-        Long loggedInUserId = authService.getLoggedInUserId();
-        if(userId!=loggedInUserId)
-            throw new CustomException("User is not loggedIn or invalid user","INVALID_USER",403);
-    }
 
     @Override
     public OrderResponse getOrderDetails(long orderId) {

@@ -93,6 +93,10 @@ public class AuthService {
     }
 
     public boolean isValidUser(Long userId) {
-        return Objects.equals(userId, getLoginUserId());
+        if(Objects.equals(userId, getLoginUserId())){
+            return true;
+        }else{
+            throw new CustomException("User is not valid","USER_NOT_VALID");
+        }
     }
 }

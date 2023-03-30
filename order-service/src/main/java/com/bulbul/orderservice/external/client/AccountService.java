@@ -18,18 +18,11 @@ public interface AccountService {
     @PutMapping("/user/deductBal/{id}")
     String deductUserBalance(@PathVariable Long id, @RequestParam double amount);
 
-    default ResponseEntity<Long> fallback(Exception e) {
-        throw new CustomException("Account Service is not available",
-                "UNAVAILABLE",
-                500);
-    }
-
     default String fallback(Long id, double amount, Throwable t) {
         if (t instanceof FeignException && ((FeignException) t).status() == 503) {
             // handle Service Unavailable error
             return "Service Unavailable: Account Service is currently unavailable.";
         } else {
-            // handle other errors
             throw new CustomException("User balance can not be deducted",
                     "UNAVAILABLE",
                     500);

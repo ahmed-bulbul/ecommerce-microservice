@@ -15,18 +15,27 @@ import org.springframework.web.bind.annotation.RequestParam;
 @FeignClient(name = "AUTH-SERVICE/auth")
 public interface AuthService {
 
-    @PutMapping("/user/deductBal/{id}")
-    String deductUserBalance(@PathVariable Long id, @RequestParam Long amount);
-
     @GetMapping("/user/{id}")
     UserResponse getUser(@PathVariable Long id);
 
-    @GetMapping("/getLoggedInUserId")
-    Long getLoggedInUserId();
+    @GetMapping("/isValidUser/{userId}")
+    public boolean isValidUser(@PathVariable Long userId);
 
     default ResponseEntity<Long> fallback(Exception e) {
         throw new CustomException("Auth Service is not available",
                 "UNAVAILABLE",
                 500);
+    }
+
+    default ResponseEntity<Long> fallback(Exception e,Throwable t) {
+        throw new CustomException("Invalid User",
+                "INVALID_USER",
+                403);
+    }
+
+    default boolean fallBack(Long id, Throwable t) {
+        throw new CustomException("Invalid User",
+                "INVALID_USER",
+                403);
     }
 }
