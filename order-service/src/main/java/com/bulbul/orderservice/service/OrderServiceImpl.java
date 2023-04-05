@@ -1,15 +1,15 @@
 package com.bulbul.orderservice.service;
 
 
-import com.bulbul.commonservice.event.OrderEvent;
 import com.bulbul.orderservice.entity.Order;
 import com.bulbul.orderservice.exception.CustomException;
 import com.bulbul.orderservice.external.client.AccountService;
 import com.bulbul.orderservice.external.client.AuthService;
 import com.bulbul.orderservice.external.client.PaymentService;
 import com.bulbul.orderservice.external.client.ProductService;
-import com.bulbul.orderservice.external.request.PaymentRequest;
+import com.bulbul.orderservice.external.interceptor.AuthInterceptor;
 import com.bulbul.orderservice.external.response.PaymentResponse;
+import com.bulbul.orderservice.external.response.UserResponse;
 import com.bulbul.orderservice.kafka.OrderProducer;
 import com.bulbul.orderservice.model.OrderRequest;
 import com.bulbul.orderservice.model.OrderResponse;
@@ -19,8 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
-import java.time.Instant;
 
 @Service
 @Slf4j
@@ -39,11 +37,12 @@ public class OrderServiceImpl  implements OrderService{
     private final AccountService accountService;
 
     private final AuthService authService;
+    private final AuthInterceptor authInterceptor;
 
 
     @Autowired
     public OrderServiceImpl(OrderRepository orderRepository, ProductService productService, PaymentService paymentService,
-                            RestTemplate restTemplate, OrderProducer orderProducer, AccountService accountService, AuthService authService) {
+                            RestTemplate restTemplate, OrderProducer orderProducer, AccountService accountService, AuthService authService, AuthInterceptor authInterceptor) {
         this.orderRepository = orderRepository;
         this.productService = productService;
         this.paymentService = paymentService;
@@ -51,6 +50,7 @@ public class OrderServiceImpl  implements OrderService{
         this.orderProducer = orderProducer;
         this.accountService = accountService;
         this.authService = authService;
+        this.authInterceptor = authInterceptor;
     }
 
 
@@ -58,9 +58,22 @@ public class OrderServiceImpl  implements OrderService{
     public long placeOrder(OrderRequest orderRequest) {
 
         log.info("Placing Order request: {}", orderRequest);
-
+        String username = authInterceptor.extractUsername();
         log.info("Validating user with user Id: {}",orderRequest.getUserId());
-        authService.isValidUser(orderRequest.getUserId());
+
+        try {
+            UserResponse user = authService.getUserByUsername(username);
+            if(orderRequest.getUserId()!=user.getId()){
+                throw new CustomException("User not valid","USER_NOT_VALID",403);
+            }
+            log.info("current logged in user : {} ",user.getUsername());
+        }catch (Exception e){
+            throw new CustomException("User not valid","USER_NOT_VALID",403);
+        }
+
+
+
+
 
 //        productService.reduceQuantity(orderRequest.getProductId(), orderRequest.getQuantity());
 //
@@ -116,10 +129,10 @@ public class OrderServiceImpl  implements OrderService{
 //        orderEvent.setEmail(orderRequest.getEmail());
 //
 //      //  orderProducer.sendMessage(orderEvent);
-
-      //  return order.getId();
-
+//
+//        return order.getId();
         return 0L;
+
     }
 
 

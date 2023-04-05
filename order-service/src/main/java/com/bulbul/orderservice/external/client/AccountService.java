@@ -20,13 +20,11 @@ public interface AccountService {
 
     default String fallback(Long id, double amount, Throwable t) {
         if (t instanceof FeignException && ((FeignException) t).status() == 503) {
-            // handle Service Unavailable error
             return "Service Unavailable: Account Service is currently unavailable.";
         } else {
             throw new CustomException("User balance can not be deducted",
-                    "UNAVAILABLE",
-                    500);
+                    "BAD_REQUEST",
+                    400);
         }
     }
-
 }
