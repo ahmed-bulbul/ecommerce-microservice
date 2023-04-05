@@ -38,4 +38,8 @@ public class Order {
     @Column(name = "TOTAL_AMOUNT")
     private long amount;
 
+
+    @Column(name = "IS_ACTIVE")
+    private Boolean isActive=Boolean.FALSE;
+
 }

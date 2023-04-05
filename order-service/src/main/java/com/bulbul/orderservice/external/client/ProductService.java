@@ -17,6 +17,11 @@ public interface ProductService {
             @PathVariable("id") long productId,
             @RequestParam long quantity
     );
+    @PutMapping("/revertQuantity/{id}")
+    ResponseEntity<Void> revertQuantity(
+            @PathVariable("id") long productId,
+            @RequestParam long quantity
+    );
 
 
     default ResponseEntity<Void> fallback(Exception e) {

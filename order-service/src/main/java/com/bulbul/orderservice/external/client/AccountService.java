@@ -3,6 +3,7 @@ package com.bulbul.orderservice.external.client;
 
 import com.bulbul.orderservice.exception.CustomException;
 import com.bulbul.orderservice.external.decoder.CustomErrorDecoder;
+import com.bulbul.orderservice.external.response.UserResponse;
 import feign.FeignException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -17,6 +18,12 @@ public interface AccountService {
 
     @PutMapping("/user/deductBal/{id}")
     String deductUserBalance(@PathVariable Long id, @RequestParam double amount);
+
+    default ResponseEntity<Long> fallback(Exception e) {
+        throw new CustomException("Account Service is not available",
+                "UNAVAILABLE",
+                500);
+    }
 
     default String fallback(Long id, double amount, Throwable t) {
         if (t instanceof FeignException && ((FeignException) t).status() == 503) {

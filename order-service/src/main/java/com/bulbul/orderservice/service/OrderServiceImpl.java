@@ -1,6 +1,7 @@
 package com.bulbul.orderservice.service;
 
 
+import com.bulbul.commonservice.event.OrderEvent;
 import com.bulbul.orderservice.entity.Order;
 import com.bulbul.orderservice.exception.CustomException;
 import com.bulbul.orderservice.external.client.AccountService;
@@ -8,6 +9,7 @@ import com.bulbul.orderservice.external.client.AuthService;
 import com.bulbul.orderservice.external.client.PaymentService;
 import com.bulbul.orderservice.external.client.ProductService;
 import com.bulbul.orderservice.external.interceptor.AuthInterceptor;
+import com.bulbul.orderservice.external.request.PaymentRequest;
 import com.bulbul.orderservice.external.response.PaymentResponse;
 import com.bulbul.orderservice.external.response.UserResponse;
 import com.bulbul.orderservice.kafka.OrderProducer;
@@ -18,7 +20,10 @@ import com.bulbul.orderservice.respository.OrderRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+
+import java.time.Instant;
 
 @Service
 @Slf4j
@@ -54,85 +59,89 @@ public class OrderServiceImpl  implements OrderService{
     }
 
 
+
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public long placeOrder(OrderRequest orderRequest) {
-
         log.info("Placing Order request: {}", orderRequest);
         String username = authInterceptor.extractUsername();
-        log.info("Validating user with user Id: {}",orderRequest.getUserId());
+        log.info("Validating user with user Id: {}", orderRequest.getUserId());
 
         try {
             UserResponse user = authService.getUserByUsername(username);
-            if(orderRequest.getUserId()!=user.getId()){
-                throw new CustomException("User not valid","USER_NOT_VALID",403);
+            if (orderRequest.getUserId() != user.getId()) {
+                throw new CustomException("User not valid", "USER_NOT_VALID", 403);
             }
-            log.info("current logged in user : {} ",user.getUsername());
-        }catch (Exception e){
-            throw new CustomException("User not valid","USER_NOT_VALID",403);
+            log.info("current logged in user: {}", user.getUsername());
+        } catch (Exception e) {
+            throw new CustomException("User not valid", "USER_NOT_VALID", 403);
         }
 
+        log.info("Creating Order with Status CREATED");
+        // 1. Create order
+        Order order = Order.builder()
+                .productId(orderRequest.getProductId())
+                .userId(orderRequest.getUserId())
+                .amount(orderRequest.getTotalAmount())
+                .quantity(orderRequest.getQuantity())
+                .orderStatus("CREATED")
+                .orderDate(Instant.now())
+                .isActive(Boolean.TRUE)
+                .build();
+        order = orderRepository.save(order);
 
+        // 2. Try to reduce product quantity
+        try {
+            productService.reduceQuantity(orderRequest.getProductId(), orderRequest.getQuantity());
+        } catch (Exception e) {
+            order.setIsActive(Boolean.FALSE);
+            throw new CustomException("Failed to reduce quantity", "FAILED_REDUCE_QUANTITY", 404);
+        }
+        log.info("Calling Payment Service to complete the payment");
+        PaymentRequest paymentRequest = PaymentRequest.builder()
+                .orderId(order.getId())
+                .paymentMode(orderRequest.getPaymentMode())
+                .amount(orderRequest.getTotalAmount())
+                .build();
 
+        String orderStatus = null;
+        Long paymentId=null;
+        // 3. Try to payment
+        try {
+            paymentId = paymentService.doPayment(paymentRequest).getBody();
+            log.info("Payment done Successfully. Changing the order status to PLACED");
+            orderStatus = "PLACED";
+        } catch (Exception e) {
+            order.setIsActive(Boolean.FALSE);
+            productService.revertQuantity(orderRequest.getProductId(), orderRequest.getQuantity());
+            log.error("Error occurred in payment. Changing the order status to PAYMENT_FAILED");
+            throw new CustomException("Failed to payment","PAYMENT_FAILED",404);
+        }
 
+        log.info("Invoking Account Service to Deduct User Balance");
+        // 4. Try to deduct user balance
+        try {
+            accountService.deductUserBalance(orderRequest.getUserId(), orderRequest.getTotalAmount());
+        } catch (Exception e) {
+            order.setIsActive(Boolean.FALSE);
+            productService.revertQuantity(orderRequest.getProductId(), orderRequest.getQuantity());
+            paymentService.failedPayment(paymentId);
+            log.error("Failed to deduct user balance. Changing the order status to ACCOUNT_SERVICE_FAILED");
+            throw new CustomException("Failed to deduct user balance", "FAILED_DEDUCT_USER_BALANCE", 404);
+        }
 
-//        productService.reduceQuantity(orderRequest.getProductId(), orderRequest.getQuantity());
-//
-//        log.info("Creating Order with Status CREATED");
-//
-//        Order order = Order.builder()
-//                .productId(orderRequest.getProductId())
-//                .userId(orderRequest.getUserId())
-//                .amount(orderRequest.getTotalAmount())
-//                .quantity(orderRequest.getQuantity())
-//                .orderStatus("CREATED")
-//                .orderDate(Instant.now())
-//                .build();
-//
-//        order = orderRepository.save(order);
-//
-//        log.info("Calling Payment Service to complete the payment");
-//
-//        PaymentRequest paymentRequest
-//                =PaymentRequest.builder()
-//                .orderId(order.getId())
-//                .paymentMode(orderRequest.getPaymentMode())
-//                .amount(orderRequest.getTotalAmount())
-//                .build();
-//
-//        String orderStatus =null;
-//        try{
-//            paymentService.doPayment(paymentRequest);
-//            log.info("Payment done Successfully.Changing the order status to PLACED");
-//            orderStatus="PLACED";
-//        }catch (Exception e){
-//            log.error("Error occurred in payment.Changing the order status to PAYMENT_FAILED");
-//            orderStatus="PAYMENT_FAILED";
-//        }
-//
-//        log.info("Invoking Account Service to Deduct User Balance");
-//
-//        accountService.deductUserBalance(orderRequest.getUserId(),orderRequest.getTotalAmount());
-//
-//
-//
-//        order.setOrderStatus(orderStatus);
-//        orderRepository.save(order);
-//        log.info("Order places successfully with orderId: {}", order.getId());
-//
-//
-//        //send to kafka
-//        OrderEvent orderEvent = new OrderEvent();
-//        orderEvent.setStatus("PENDING");
-//        orderEvent.setMessage("Order status is in pending state");
-//        orderEvent.setOrderStatus(order.getOrderStatus());
-//        orderEvent.setOrderId(order.getId());
-//        orderEvent.setEmail(orderRequest.getEmail());
-//
-//      //  orderProducer.sendMessage(orderEvent);
-//
-//        return order.getId();
-        return 0L;
+        order.setOrderStatus(orderStatus);
+        orderRepository.save(order);
 
+        // send to kafka
+        OrderEvent orderEvent = new OrderEvent();
+        orderEvent.setStatus("PENDING");
+        orderEvent.setMessage("Order status is in pending state");
+        orderEvent.setOrderStatus(order.getOrderStatus());
+        orderEvent.setOrderId(order.getId());
+        orderEvent.setEmail(orderRequest.getEmail());
+        // orderProducer.sendMessage(orderEvent);
+        return order.getId();
     }
 
 
@@ -180,7 +189,9 @@ public class OrderServiceImpl  implements OrderService{
 
         return OrderResponse.builder()
                 .orderId(order.getId())
+                .userId(order.getUserId())
                 .amount(order.getAmount())
+                .quantity(order.getQuantity())
                 .orderDate(order.getOrderDate())
                 .orderStatus(order.getOrderStatus())
                 .productDetails(productDetails)

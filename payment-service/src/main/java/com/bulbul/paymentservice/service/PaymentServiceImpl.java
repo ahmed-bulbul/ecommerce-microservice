@@ -63,4 +63,12 @@ public class PaymentServiceImpl implements PaymentService {
                 .amount(transactionDetails.getAmount())
                 .build();
     }
+
+    @Override
+    public long failedPayment(Long id) {
+        TransactionDetails transactionDetails = transactionDetailsRepository.findById(id).orElseThrow(()-> new RuntimeException("Not found!"));
+        transactionDetails.setPaymentStatus("FAILED");
+        transactionDetailsRepository.save(transactionDetails);
+        return transactionDetails.getId();
+    }
 }

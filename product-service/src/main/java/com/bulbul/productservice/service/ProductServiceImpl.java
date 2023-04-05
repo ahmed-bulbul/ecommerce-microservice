@@ -80,4 +80,18 @@ public class ProductServiceImpl implements ProductService{
         productRepository.save(product);
         log.info("Product Quantity updated Successfully");
     }
+
+    @Override
+    public void revertQuantity(long productId, long quantity) {
+        log.info("Revert Quantity {} for Id: {}", quantity,productId);
+        Product product
+                = productRepository.findById(productId)
+                .orElseThrow(() -> new CustomException(
+                        "Product with given Id not found",
+                        "PRODUCT_NOT_FOUND"
+                ));
+        product.setQuantity(product.getQuantity() + quantity);
+        productRepository.save(product);
+        log.info("Product Quantity reverted Successfully");
+    }
 }

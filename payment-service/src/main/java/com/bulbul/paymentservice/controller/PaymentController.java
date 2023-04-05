@@ -29,6 +29,13 @@ public class PaymentController {
         );
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Long> failedPayment(@PathVariable Long id){
+        return new ResponseEntity<>(
+                paymentService.failedPayment(id),HttpStatus.OK
+        );
+    }
+
     @GetMapping("/order/{orderId}")
     public ResponseEntity<PaymentResponse> getPaymentDetailsByOrderId(@PathVariable String orderId) {
         return new ResponseEntity<>(
