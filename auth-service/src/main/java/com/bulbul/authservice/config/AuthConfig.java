@@ -39,10 +39,10 @@ public class AuthConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.csrf().disable()
-                .authorizeHttpRequests().requestMatchers("/api/addUser", "/api/getToken","/auth/**").permitAll()
+                .authorizeHttpRequests().requestMatchers("/auth/**").permitAll()
                 .and()
-                .authorizeHttpRequests().requestMatchers("/api/**").authenticated()
-                .and()
+//                .authorizeHttpRequests().requestMatchers("/auth/**").authenticated()
+//                .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authenticationProvider(authenticationProvider())

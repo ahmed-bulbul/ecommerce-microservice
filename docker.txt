@@ -1,0 +1,52 @@
+
+
+############################ show running containers ###############
+docker ps
+
+####################### all containers ###############################
+docker ps -a
+
+########################## docker stop ###############################
+docker stop 34253434dd[ID or name]
+#Docker start
+docker start 324534dd
+
+################### To remove container ###############################
+first stop
+docker stop w63465dd[containerId]
+then delete
+docker rm 743564dd[containerId]
+
+############### show docker images ###############
+docker images
+
+############### run docker images ###########################
+docker run --name redis-latest -p6379:6379 -d redis:latest
+if i wanna different version of redis
+docker run --name redis-latest -p6378:6379 -d redis:6.2.7
+here -p6378 is redis for 6.3.7 version and 6379 is default redis container port
+
+############################ Docker Debug ##############################
+docker inspect 8746dd
+
+####################### Docker Logs ####################################
+docker logs 568709dd
+
+########################### Delete All docker Resources #################
+docker stop 6574dd 7890534dd
+
+####################### Remove docker images ##########################
+docker rmi 7890534dd
+
+################# removes all images and containers ###################
+docker system prune -a
+
+############################# BUILD IMAGES ############################
+docker build -t dailycodebuffer/serviceregistry:0.0.1 .
+docker build -t dailycodebuffer/gatewayservice:latest .
+docker build -t dailycodebuffer/authservice:latest .
+
+###################### Running docker #################################
+docker run  -d -p8761:8761 --name serviceregistry 2e9064e18570[image id]
+docker run -d -p8080:8080 -e EUREKA_SERVER_ADDRESS=http://host.docker.internal:8761/eureka --name gatewayservice 7b1e67fe717b
+docker run -d -p9898:9898 -e EUREKA_SERVER_ADDRESS=http://host.docker.internal:8761/eureka --name authservice 7b1e67fe717b

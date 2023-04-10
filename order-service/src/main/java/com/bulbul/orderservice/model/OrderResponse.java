@@ -19,6 +19,7 @@ public class OrderResponse {
     private Instant orderDate;
     private String orderStatus;
     private long amount;
+    private long quantity;
     private ProductDetails productDetails;
     private PaymentDetails paymentDetails;
 
@@ -26,6 +27,7 @@ public class OrderResponse {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class ProductDetails {
 
         private String productName;
@@ -38,6 +40,7 @@ public class OrderResponse {
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class PaymentDetails{
         private long paymentId;
         private PaymentMode paymentMode;

@@ -26,4 +26,9 @@ public class FallBackController {
         return "Auth Service is down! Please wait and try again later.";
     }
 
+    @GetMapping("/accountServiceFallBack")
+    public String accountServiceFallBack(){
+        return "Account Service is down! Please wait and try again later.";
+    }
+
 }

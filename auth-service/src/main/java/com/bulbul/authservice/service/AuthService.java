@@ -7,7 +7,6 @@ import com.bulbul.authservice.exception.CustomException;
 import com.bulbul.authservice.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -80,19 +79,34 @@ public class AuthService {
     }
 
     public static Long getLoginUserId() {
+        log.info("Called getLoginUserId() .... ");
         Long userId = null;
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            log.info("Auth is : {}",auth);
             if (Objects.isNull(auth)) return null;
-            userId = ((UserDetailsImpl) auth.getPrincipal()).getId();
-            System.out.println(userId);
+            Object principal = auth.getPrincipal();
+            if (principal instanceof UserDetailsImpl) {
+                userId = ((UserDetailsImpl) principal).getId();
+                log.info("Current loggedIn user is : {}",userId);
+            }
         } catch (Exception e) {
             log.error("Auth data could not be extracted: {}", e.getMessage());
         }
+        log.info("Return  getLoginUserId() .... {}",userId);
         return userId;
     }
 
     public boolean isValidUser(Long userId) {
-        return Objects.equals(userId, getLoginUserId());
+        if(Objects.equals(userId, getLoginUserId())){
+            return true;
+        }else{
+            throw new CustomException("User is not valid","USER_NOT_VALID");
+        }
+    }
+
+    public UserResponse getUserByUsername(String username) {
+        User user =  repository.findByUsername(username).orElseThrow(()->new CustomException("User not found","NOT_FOUND"));
+        return convertToResponseDto(user);
     }
 }

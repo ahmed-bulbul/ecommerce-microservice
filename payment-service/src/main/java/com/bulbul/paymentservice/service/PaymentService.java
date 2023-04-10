@@ -8,4 +8,6 @@ public interface PaymentService {
     long doPayment(PaymentRequest paymentRequest);
 
     PaymentResponse getPaymentDetailsByOrderId(String orderId);
+
+    long failedPayment(Long id);
 }
