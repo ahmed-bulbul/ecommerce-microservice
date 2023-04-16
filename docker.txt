@@ -1,6 +1,6 @@
 
 
-############################ show running containers ###############
+############################ show running containers #################
 docker ps
 
 ####################### all containers ###############################
@@ -17,10 +17,10 @@ docker stop w63465dd[containerId]
 then delete
 docker rm 743564dd[containerId]
 
-############### show docker images ###############
+############### show docker images ###################################
 docker images
 
-############### run docker images ###########################
+############### run docker images #####################################
 docker run --name redis-latest -p6379:6379 -d redis:latest
 if i wanna different version of redis
 docker run --name redis-latest -p6378:6379 -d redis:6.2.7
@@ -35,18 +35,18 @@ docker logs 568709dd
 ########################### Delete All docker Resources #################
 docker stop 6574dd 7890534dd
 
-####################### Remove docker images ##########################
+####################### Remove docker images ############################
 docker rmi 7890534dd
 
-################# removes all images and containers ###################
+################# removes all images and containers ####################
 docker system prune -a
 
-############################# BUILD IMAGES ############################
+############################# BUILD IMAGES #############################
 docker build -t dailycodebuffer/serviceregistry:0.0.1 .
 docker build -t dailycodebuffer/gatewayservice:latest .
 docker build -t dailycodebuffer/authservice:latest .
 
-###################### Running docker #################################
+###################### Running docker ###################################
 docker run  -d -p8761:8761 --name serviceregistry 2e9064e18570[image id]
 docker run -d -p8080:8080 -e EUREKA_SERVER_ADDRESS=http://host.docker.internal:8761/eureka --name gatewayservice 7b1e67fe717b
 docker run -d -p9898:9898 -e EUREKA_SERVER_ADDRESS=http://host.docker.internal:8761/eureka --name authservice 7b1e67fe717b
