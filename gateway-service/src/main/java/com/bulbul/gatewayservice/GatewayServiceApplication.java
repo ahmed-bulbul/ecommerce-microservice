@@ -17,7 +17,7 @@ public class GatewayServiceApplication {
 		SpringApplication.run(GatewayServiceApplication.class, args);
 	}
 
-	@Bean
+	/*@Bean
 	public Customizer<Resilience4JCircuitBreakerFactory> defaultCustomizer() {
 		return factory -> factory.configureDefault(
 				id -> new Resilience4JConfigBuilder(id)
@@ -26,6 +26,6 @@ public class GatewayServiceApplication {
 
 						).build()
 		);
-	}
+	}*/
 
 }
