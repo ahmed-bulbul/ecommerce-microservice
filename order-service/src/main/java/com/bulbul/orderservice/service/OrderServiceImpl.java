@@ -8,7 +8,6 @@ import com.bulbul.orderservice.external.client.AccountService;
 import com.bulbul.orderservice.external.client.AuthService;
 import com.bulbul.orderservice.external.client.PaymentService;
 import com.bulbul.orderservice.external.client.ProductService;
-import com.bulbul.orderservice.external.interceptor.AuthInterceptor;
 import com.bulbul.orderservice.external.request.PaymentRequest;
 import com.bulbul.orderservice.external.response.PaymentResponse;
 import com.bulbul.orderservice.external.response.UserResponse;
@@ -19,9 +18,11 @@ import com.bulbul.orderservice.external.response.ProductResponse;
 import com.bulbul.orderservice.respository.OrderRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 
@@ -42,12 +43,12 @@ public class OrderServiceImpl  implements OrderService{
     private final AccountService accountService;
 
     private final AuthService authService;
-    private final AuthInterceptor authInterceptor;
+
 
 
     @Autowired
     public OrderServiceImpl(OrderRepository orderRepository, ProductService productService, PaymentService paymentService,
-                            RestTemplate restTemplate, OrderProducer orderProducer, AccountService accountService, AuthService authService, AuthInterceptor authInterceptor) {
+                            RestTemplate restTemplate, OrderProducer orderProducer, AccountService accountService, AuthService authService) {
         this.orderRepository = orderRepository;
         this.productService = productService;
         this.paymentService = paymentService;
@@ -55,18 +56,15 @@ public class OrderServiceImpl  implements OrderService{
         this.orderProducer = orderProducer;
         this.accountService = accountService;
         this.authService = authService;
-        this.authInterceptor = authInterceptor;
     }
 
 
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public long placeOrder(OrderRequest orderRequest) {
+    public long placeOrder(OrderRequest orderRequest,String username) {
         log.info("Placing Order request: {}", orderRequest);
-        String username = authInterceptor.extractUsername();
         log.info("Validating user with user Id: {}", orderRequest.getUserId());
-
         try {
             UserResponse user = authService.getUserByUsername(username);
             if (orderRequest.getUserId() != user.getId()) {

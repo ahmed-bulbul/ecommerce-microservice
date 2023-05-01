@@ -1,6 +1,7 @@
 package com.bulbul.orderservice.controller;
 
 
+import com.bulbul.orderservice.contant.ApplicationConstant;
 import com.bulbul.orderservice.model.OrderRequest;
 import com.bulbul.orderservice.model.OrderResponse;
 import com.bulbul.orderservice.service.OrderService;
@@ -25,8 +26,9 @@ public class OrderController {
 
 
     @PostMapping
-    public ResponseEntity<Long> placeOrder(@RequestBody OrderRequest orderRequest){
-        long orderId = orderService.placeOrder(orderRequest);
+    public ResponseEntity<Long> placeOrder(@RequestBody OrderRequest orderRequest,@RequestHeader(ApplicationConstant.LoggedInUser) String username){
+        log.info("Logged in user details {}",username);
+        long orderId = orderService.placeOrder(orderRequest,username);
         log.info("Order id: {}", orderId);
         return new ResponseEntity<>(orderId, HttpStatus.CREATED);
     }
