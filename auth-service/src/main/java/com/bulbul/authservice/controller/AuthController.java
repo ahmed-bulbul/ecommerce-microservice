@@ -7,8 +7,10 @@ import com.bulbul.authservice.dto.UserResponse;
 import com.bulbul.authservice.entity.User;
 import com.bulbul.authservice.exception.CustomException;
 import com.bulbul.authservice.service.AuthService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -45,7 +47,7 @@ public class AuthController {
 
 
     @PostMapping("/register")
-    public String addNewUser(@RequestBody User user) {
+    public String addNewUser(@Valid @RequestBody  User user) {
         return service.saveUser(user);
     }
 

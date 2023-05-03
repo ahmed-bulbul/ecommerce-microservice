@@ -1,6 +1,7 @@
 package com.bulbul.authservice.entity;
 
 
+import com.bulbul.authservice.constant.ApplicationConstant;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,7 +14,7 @@ import java.util.Set;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "USERS")
+@Table(name = ApplicationConstant.TABLE_USERS)
 public class User {
 
     @Id
@@ -21,11 +22,13 @@ public class User {
     private Long id;
     private String username;
     private String email;
+
+//    @StrongPassword
     private String password;
     @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(  name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @JoinTable(name = ApplicationConstant.TABLE_USER_ROLES,
+            joinColumns = @JoinColumn(name = ApplicationConstant.JOIN_COL_USER_ID),
+            inverseJoinColumns = @JoinColumn(name = ApplicationConstant.JOIN_COL_ROLE_ID))
     private Set<Role> roles = new HashSet<>();
 
 }
