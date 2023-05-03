@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import java.security.Key;
@@ -22,6 +23,9 @@ public class JwtService {
 //    public void validateToken(final String token) {
 //        Jwts.parserBuilder().setSigningKey(getSignKey()).build().parseClaimsJws(token);
 //    }
+
+    @Value("${ms.app.jwtExpirationMs}")
+    private int jwtExpirationMs;
 
     public Boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
@@ -63,5 +67,20 @@ public class JwtService {
 
     private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder().setSigningKey(getSignKey()).build().parseClaimsJws(token).getBody();
+    }
+
+    /**
+     * generate token
+     *
+     * @param username {@link String}
+     * @return {@link String}
+     */
+    public String generateTokenFromUsername(String username) {
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+                .signWith(SignatureAlgorithm.HS512, SECRET)
+                .compact();
     }
 }
