@@ -17,13 +17,8 @@ import java.util.Objects;
 @Slf4j
 public class AuthenticationFilter extends AbstractGatewayFilterFactory<AuthenticationFilter.Config> {
 
-
     private final RouteValidator validator;
-
-
-
     private final JwtUtil jwtUtil;
-
 
     @Autowired
     public AuthenticationFilter(RouteValidator validator, JwtUtil jwtUtil) {
@@ -36,7 +31,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
     public GatewayFilter apply(Config config) {
 
         return ((exchange, chain) -> {
-            ServerHttpRequest request = null;
+            ServerHttpRequest request = exchange.getRequest();
             if (validator.isSecured.test(exchange.getRequest())) {
                 if (!exchange.getRequest().getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing Authorization Header");
@@ -50,8 +45,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                 try {
                     jwtUtil.validateToken(authHeader);
 
-                    request = exchange.getRequest()
-                            .mutate()
+                    request = request.mutate()
                             .header("loggedInUser", jwtUtil.extractUsername(authHeader))
                             .build();
 
@@ -59,7 +53,6 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                     System.out.println("invalid access...!"+e);
                     throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "un authorized access to application");
                 }
-
             }
             return chain.filter(exchange.mutate().request(request).build());
         });

@@ -64,17 +64,7 @@ public class OrderServiceImpl  implements OrderService{
     @Override
     public long placeOrder(OrderRequest orderRequest,String username) {
         log.info("Placing Order request: {}", orderRequest);
-        log.info("Validating user with user Id: {}", orderRequest.getUserId());
-        try {
-            UserResponse user = authService.getUserByUsername(username);
-            if (orderRequest.getUserId() != user.getId()) {
-                throw new CustomException("User not valid", "USER_NOT_VALID", 403);
-            }
-            log.info("current logged in user: {}", user.getUsername());
-        } catch (Exception e) {
-            throw new CustomException("User not valid", "USER_NOT_VALID", 403);
-        }
-
+        validateUser(orderRequest.getUserId(),username);
         log.info("Creating Order with Status CREATED");
         // 1. Create order
         Order order = Order.builder()
@@ -140,6 +130,19 @@ public class OrderServiceImpl  implements OrderService{
         orderEvent.setEmail(orderRequest.getEmail());
         // orderProducer.sendMessage(orderEvent);
         return order.getId();
+    }
+
+    private void validateUser(long userId, String username) {
+        try {
+            UserResponse user = authService.getUserByUsername(username);
+            if (userId != user.getId()) {
+                log.error("User not valid {}",username);
+                throw new CustomException("User not valid", "USER_NOT_VALID", 403);
+            }
+            log.info("current logged in user: {}", user.getUsername());
+        } catch (Exception e) {
+            throw new CustomException("User not valid", "USER_NOT_VALID", 403);
+        }
     }
 
 
