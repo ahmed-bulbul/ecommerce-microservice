@@ -44,8 +44,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                 }
                 try {
                     jwtUtil.validateToken(authHeader);
-
-                    request = request.mutate()
+                    request.mutate()
                             .header("loggedInUser", jwtUtil.extractUsername(authHeader))
                             .build();
 

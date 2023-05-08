@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class FallBackController {
 
 
-/*    @GetMapping("/orderServiceFallBack")
+    @GetMapping("/orderServiceFallBack")
     public String orderServiceFallBack(){
         return "Order Service is down! Please wait and try again later.";
     }
@@ -29,6 +29,6 @@ public class FallBackController {
     @GetMapping("/accountServiceFallBack")
     public String accountServiceFallBack(){
         return "Account Service is down! Please wait and try again later.";
-    }*/
+    }
 
 }

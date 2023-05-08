@@ -20,11 +20,7 @@ public class JwtService {
 
     public static final String SECRET = "5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437";
 
-//    public void validateToken(final String token) {
-//        Jwts.parserBuilder().setSigningKey(getSignKey()).build().parseClaimsJws(token);
-//    }
-
-    @Value("${ms.app.jwtExpirationMs}")
+    @Value("${ms.app.refresh.jwtExpirationMs}")
     private int jwtExpirationMs;
 
     public Boolean validateToken(String token, UserDetails userDetails) {
@@ -38,6 +34,12 @@ public class JwtService {
         return extractClaim(token, Claims::getExpiration);
     }
 
+    /**
+     * generate token
+     *
+     * @param userName {@link String}
+     * @return {@link String}
+     */
     public String generateToken(String userName) {
         Map<String, Object> claims = new HashMap<>();
         return createToken(claims, userName);
@@ -67,20 +69,5 @@ public class JwtService {
 
     private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder().setSigningKey(getSignKey()).build().parseClaimsJws(token).getBody();
-    }
-
-    /**
-     * generate token
-     *
-     * @param username {@link String}
-     * @return {@link String}
-     */
-    public String generateTokenFromUsername(String username) {
-        return Jwts.builder()
-                .setSubject(username)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
-                .signWith(SignatureAlgorithm.HS512, SECRET)
-                .compact();
     }
 }

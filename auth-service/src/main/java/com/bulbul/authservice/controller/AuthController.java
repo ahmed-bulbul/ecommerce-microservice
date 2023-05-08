@@ -2,6 +2,7 @@ package com.bulbul.authservice.controller;
 
 import com.bulbul.authservice.config.UserDetailsImpl;
 import com.bulbul.authservice.dto.*;
+import com.bulbul.authservice.entity.RefreshToken;
 import com.bulbul.authservice.entity.User;
 import com.bulbul.authservice.exception.CustomException;
 import com.bulbul.authservice.service.AuthService;
@@ -59,12 +60,15 @@ public class AuthController {
         if (authenticate.isAuthenticated()) {
             String jwt =  service.generateToken(authRequest.getUsername());
             UserDetailsImpl userDetails =(UserDetailsImpl) authenticate.getPrincipal();
+            RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
 
             List<String> roles = userDetails.getAuthorities().stream()
                     .map(GrantedAuthority::getAuthority)
                     .collect(Collectors.toList());
 
-            return ResponseEntity.ok(new JwtResponse(jwt,
+            return ResponseEntity.ok(new JwtResponse(
+                    jwt,
+                    refreshToken.getToken(),
                     userDetails.getId(),
                     userDetails.getUsername(),
                     userDetails.getEmail(),
@@ -98,5 +102,12 @@ public class AuthController {
     @PostMapping("/refresh/token")
     public ResponseEntity<TokenRefreshResponse> refreshToken(@Valid @RequestBody TokenRefreshRequest request) {
         return new ResponseEntity<>(refreshTokenService.refreshToken(request), HttpStatus.OK);
+    }
+
+    @PutMapping("/logout")
+    public ResponseEntity<?> logout() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        refreshTokenService.deleteByUserId(((UserDetailsImpl) authentication.getPrincipal()).getId());
+        return ResponseEntity.ok("Successfully Logout");
     }
 }
