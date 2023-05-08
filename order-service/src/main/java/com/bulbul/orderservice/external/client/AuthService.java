@@ -35,7 +35,7 @@ public interface AuthService {
     }
 
     default UserResponse fallback(String  username, Throwable ex) {
-        throw new CustomException("User is not valid", "USER_NOT_VALID", 403);
+        throw new CustomException("Auth Service is not available", "SERVICE_UNAVAILABLE", 503);
     }
 
     default ResponseEntity<Long> fallback(Exception e) {
