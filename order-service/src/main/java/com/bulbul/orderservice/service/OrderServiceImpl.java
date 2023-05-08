@@ -136,12 +136,13 @@ public class OrderServiceImpl  implements OrderService{
         try {
             UserResponse user = authService.getUserByUsername(username);
             if (userId != user.getId()) {
-                log.error("User not valid {}",username);
+                log.error("An error occurred while validating the user: {} ",username);
                 throw new CustomException("User not valid", "USER_NOT_VALID", 403);
             }
             log.info("current logged in user: {}", user.getUsername());
         } catch (Exception e) {
-            throw new CustomException("Requested Service is not available", "SERVICE_UNAVAILABLE", 503);
+            log.error("An error occurred while validating the user", e);
+            throw new CustomException("Internal Service(Auth Service) is not available", "SERVICE_UNAVAILABLE", 503);
         }
     }
 
