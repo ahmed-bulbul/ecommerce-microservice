@@ -141,7 +141,7 @@ public class OrderServiceImpl  implements OrderService{
             }
             log.info("current logged in user: {}", user.getUsername());
         } catch (Exception e) {
-            throw new CustomException("User not valid", "USER_NOT_VALID", 403);
+            throw new CustomException("Requested Service is not available", "SERVICE_UNAVAILABLE", 503);
         }
     }
 
