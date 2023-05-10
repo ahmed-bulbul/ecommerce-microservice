@@ -1,12 +1,13 @@
 package com.bulbul.authservice.controller;
 
 import com.bulbul.authservice.config.UserDetailsImpl;
-import com.bulbul.authservice.dto.JwtResponse;
-import com.bulbul.authservice.dto.UserRequest;
-import com.bulbul.authservice.dto.UserResponse;
+import com.bulbul.authservice.dto.*;
+import com.bulbul.authservice.entity.RefreshToken;
 import com.bulbul.authservice.entity.User;
 import com.bulbul.authservice.exception.CustomException;
 import com.bulbul.authservice.service.AuthService;
+import com.bulbul.authservice.service.RefreshTokenService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,7 +20,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
@@ -30,10 +30,13 @@ public class AuthController {
     private final AuthService service;
     private final AuthenticationManager authenticationManager;
 
+    private final RefreshTokenService refreshTokenService;
+
     @Autowired
-    public AuthController(AuthService service, AuthenticationManager authenticationManager) {
+    public AuthController(AuthService service, AuthenticationManager authenticationManager, RefreshTokenService refreshTokenService) {
         this.service = service;
         this.authenticationManager = authenticationManager;
+        this.refreshTokenService = refreshTokenService;
     }
 
     @GetMapping("/user/{id}")
@@ -45,7 +48,7 @@ public class AuthController {
 
 
     @PostMapping("/register")
-    public String addNewUser(@RequestBody User user) {
+    public String addNewUser(@Valid @RequestBody  User user) {
         return service.saveUser(user);
     }
 
@@ -57,12 +60,15 @@ public class AuthController {
         if (authenticate.isAuthenticated()) {
             String jwt =  service.generateToken(authRequest.getUsername());
             UserDetailsImpl userDetails =(UserDetailsImpl) authenticate.getPrincipal();
+            RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getId());
 
             List<String> roles = userDetails.getAuthorities().stream()
                     .map(GrantedAuthority::getAuthority)
                     .collect(Collectors.toList());
 
-            return ResponseEntity.ok(new JwtResponse(jwt,
+            return ResponseEntity.ok(new JwtResponse(
+                    jwt,
+                    refreshToken.getToken(),
                     userDetails.getId(),
                     userDetails.getUsername(),
                     userDetails.getEmail(),
@@ -91,5 +97,17 @@ public class AuthController {
          boolean isValid = service.isValidUser(userId);
          log.info("isValid user : {}",isValid);
          return new ResponseEntity<>(isValid,HttpStatus.OK);
+    }
+
+    @PostMapping("/refresh/token")
+    public ResponseEntity<TokenRefreshResponse> refreshToken(@Valid @RequestBody TokenRefreshRequest request) {
+        return new ResponseEntity<>(refreshTokenService.refreshToken(request), HttpStatus.OK);
+    }
+
+    @PutMapping("/logout")
+    public ResponseEntity<?> logout() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        refreshTokenService.deleteByUserId(((UserDetailsImpl) authentication.getPrincipal()).getId());
+        return ResponseEntity.ok("Successfully Logout");
     }
 }

@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import java.security.Key;
@@ -19,9 +20,8 @@ public class JwtService {
 
     public static final String SECRET = "5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437";
 
-//    public void validateToken(final String token) {
-//        Jwts.parserBuilder().setSigningKey(getSignKey()).build().parseClaimsJws(token);
-//    }
+    @Value("${ms.app.refresh.jwtExpirationMs}")
+    private int jwtExpirationMs;
 
     public Boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
@@ -34,6 +34,12 @@ public class JwtService {
         return extractClaim(token, Claims::getExpiration);
     }
 
+    /**
+     * generate token
+     *
+     * @param userName {@link String}
+     * @return {@link String}
+     */
     public String generateToken(String userName) {
         Map<String, Object> claims = new HashMap<>();
         return createToken(claims, userName);

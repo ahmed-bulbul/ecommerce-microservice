@@ -39,34 +39,11 @@ public class AuthService {
         return jwtService.generateToken(username);
     }
 
-//    public void validateToken(String token) {
-//        jwtService.validateToken(token);
-//    }
-
 
     public UserResponse getUser(Long id) {
         User user = repository.findById(id).orElseThrow( ()-> new CustomException("User not found with this is","USER_NOT_FOUND"));
         return convertToResponseDto(user);
     }
-
-
-
-    private void validateUser(Long id) {
-        User user = findById(id);
-        //TODO : NEED TO TOKEN VALIDATION
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-           log.info(authentication.getName());
-        } else {
-            log.info("null name");
-        }
-
-    }
-
-    public User findById(Long id){
-        return repository.findById(id).orElseThrow(()->new CustomException("User not found","NOT_FOUND"));
-    }
-
 
 
 
@@ -108,5 +85,12 @@ public class AuthService {
     public UserResponse getUserByUsername(String username) {
         User user =  repository.findByUsername(username).orElseThrow(()->new CustomException("User not found","NOT_FOUND"));
         return convertToResponseDto(user);
+    }
+
+    public User findUserById(Long userId) {
+        if(Objects.nonNull(userId)){
+            return repository.findById(userId).orElse(null);
+        }
+        return null;
     }
 }
